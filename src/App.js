@@ -1,9 +1,9 @@
 import React from 'react'
 import * as BooksAPI from './BooksAPI'
 import './App.css'
-import {Route,Link} from 'react-router-dom'
+import {Route} from 'react-router-dom'
 import BookList from './BookList'
-
+import BookSearch from './BookSearch'
 class BooksApp extends React.Component {
   state = {
     /**
@@ -12,40 +12,25 @@ class BooksApp extends React.Component {
      * users can use the browser's back and forward buttons to navigate between
      * pages, as well as provide a good URL they can bookmark and share.
      */
-    
+    //books list of book literals where each book has id, name, author and shelf (read, reading, want to)
     books: []
   }
-
+  
+  componentDidMount(){
+    BooksAPI.getAll().then(books => {
+      this.setState({books})
+    })
+  }
 
   render() {
     return (
       <div className="app">
         <Route path="/search" render={() =>
-          <div className="search-books">
-            <div className="search-books-bar">
-              <Link className="close-search" to="/">Close</Link>
-              <div className="search-books-input-wrapper">
-                {/* 
-                  NOTES: The search from BooksAPI is limited to a particular set of search terms.
-                  You can find these search terms here:
-                  https://github.com/udacity/reactnd-project-myreads-starter/blob/master/SEARCH_TERMS.md
-                  
-                  However, remember that the BooksAPI.search method DOES search by title or author. So, don't worry if
-                  you don't find a specific author or title. Every search is limited by search terms.
-                */}
-                <input type="text" placeholder="Search by title or author"/>
-                
-              </div>
-            </div>
-            <div className="search-books-results">
-              <ol className="books-grid"></ol>
-            </div>
-          </div>
+          <BookSearch books={this.state.books} />
         }/>
-        <Route path='/' render={() => 
+        <Route exact path='/' render={() => 
           <BookList />
-        }
-        />
+        }/>
       </div>
     )
   }
