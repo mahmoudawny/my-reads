@@ -6,25 +6,26 @@ import * as BooksAPI from './BooksAPI'
 class BookSearch extends React.Component{
     state = {
       query: '',
-      result: []
+      result: [],
+    }
+
+    componentWillUpdate(){
+      if(this.state.query)
+        BooksAPI.search(this.state.query).then((books) => {            
+              this.setState({result: books})
+      })
     }
 
     //updateQuery: method to keep user's entered query in component's state
-    updateQuery = (q) => {
-      if(q){
-          BooksAPI.search(q).then((books) => {
-            //console.log(books)
-            this.setState({             
-              query: q,
-              result: books
-            })
-          })
-        }
-        else  this.setState({query: q})
+    updateQuery(q){
+      this.setState({query: q}) 
     }
 
+   changeShelf(book, shelf){
+      BooksAPI.update(BooksAPI.get(book.id), shelf)
+   }
+
     render(){
-      const err = this.state.result.error
       return (
             <div className="search-books">
             <div className="search-books-bar">
@@ -39,14 +40,16 @@ class BookSearch extends React.Component{
             </div>
             <div className="search-books-results">
               <ol className="books-grid"> 
-                {!err && (               
+                {!this.state.result.error && (               
                   this.state.result.map((book) => (
                   <li key={book.id}>
                       <div className="book">
                         <div className="book-top">
-                          <div className="book-cover" style={{ width: 128, height: 193, backgroundImage: `url(${book.imageLinks.thumbnail})` }}></div>
+                          {book.imageLinks && (
+                            <div className="book-cover" style={{ width: 128, height: 193, backgroundImage: `url(${book.imageLinks.thumbnail})` }}></div>
+                          )}
                           <div className="book-shelf-changer">
-                            <select>
+                            <select value={book.shelf} onChange={(event) => this.changeShelf(book, event.target.value)}>
                               <option value="none" disabled>Move to...</option>
                               <option value="currentlyReading">Currently Reading</option>
                               <option value="wantToRead">Want to Read</option>
@@ -61,7 +64,7 @@ class BookSearch extends React.Component{
                     </li>
                   )))}
               </ol>
-              {err &&
+              {this.state.result.error &&
               <span className="error-message"> No results found.</span>}
             </div>
           </div>
