@@ -7,10 +7,13 @@ class BookSearch extends React.Component{
     state = {
       query: '',
       result: [],
+      books: this.props.books
     }
+//TODO: remove books from state and make function in App to be sent as prop to change books in App state
+//TODO: fix warning for setState on unmounted component
 
     componentWillUpdate(){
-      if(this.state.query)
+      if(this.state.query && this.refs.search)
         BooksAPI.search(this.state.query).then((books) => {            
               this.setState({result: books})
       })
@@ -22,12 +25,14 @@ class BookSearch extends React.Component{
     }
 
    changeShelf(book, shelf){
-      BooksAPI.update(BooksAPI.get(book.id), shelf)
+      BooksAPI.update(book, shelf).then((books) => {            
+              this.setState({books})
+      })
    }
 
     render(){
       return (
-            <div className="search-books">
+            <div className="search-books" ref="search">
             <div className="search-books-bar">
               <Link className="close-search" to="/">Close</Link>
               <div className="search-books-input-wrapper">
