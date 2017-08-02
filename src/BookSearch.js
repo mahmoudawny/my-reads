@@ -6,31 +6,51 @@ import * as BooksAPI from './BooksAPI'
 class BookSearch extends React.Component{
     state = {
       query: '',
-      result: [],
-      books: this.props.books
+      // result: [],
+      books: []
     }
 //TODO: remove books from state and make function in App to be sent as prop to change books in App state
 //TODO: fix warning for setState on unmounted component
+//TODO: why componentWillUpdate keeps firing?
+    
+    componentWillReceiveProps(){
+      this.setState({books: this.props.books})
+      // BooksAPI.search(this.state.query).then((books) => {            
+      //       this.setState({result: books})
+      //     })
+      console.log("Search will receive props")
+    }
 
     componentWillUpdate(){
-      if(this.state.query && this.refs.search)
-        BooksAPI.search(this.state.query).then((books) => {            
-              this.setState({result: books})
-      })
+      
+      console.log("Search will update")
     }
 
     //updateQuery: method to keep user's entered query in component's state
     updateQuery(q){
-      this.setState({query: q}) 
+      if(q && (this.state.query !== q)) this.setState({query: q}) 
     }
 
    changeShelf(book, shelf){
       BooksAPI.update(book, shelf).then((books) => {            
               this.setState({books})
       })
+      console.log("Search change")
    }
 
     render(){
+      let results = []
+      console.log('result is'+ results)
+      if(this.state.query)
+        BooksAPI.search(this.state.query).then((books) => {            
+           if(!books.error) {
+             results = books.map((book) => book)
+             console.log('result is'+ results)
+             console.log('books is'+ books)
+           }
+          else results = books
+        })
+      console.log('result is'+ results)
       return (
             <div className="search-books" ref="search">
             <div className="search-books-bar">
@@ -45,8 +65,8 @@ class BookSearch extends React.Component{
             </div>
             <div className="search-books-results">
               <ol className="books-grid"> 
-                {!this.state.result.error && (               
-                  this.state.result.map((book) => (
+                {!results.error && (               
+                  results.map((book) => (
                   <li key={book.id}>
                       <div className="book">
                         <div className="book-top">
@@ -69,7 +89,7 @@ class BookSearch extends React.Component{
                     </li>
                   )))}
               </ol>
-              {this.state.result.error &&
+              {results.error &&
               <span className="error-message"> No results found.</span>}
             </div>
           </div>

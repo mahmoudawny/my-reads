@@ -1,5 +1,6 @@
 import React from 'react'
 import {Link} from 'react-router-dom'
+import * as BooksAPI from './BooksAPI'
 
 class BookList extends React.Component{
     state = {
@@ -10,9 +11,18 @@ class BookList extends React.Component{
 
     // }
 
-    // onComponentWillUpdate(){
+    onComponentWillUpdate(){
+      this.props.updateBooks()
+      console.log("Book list will update")
+    }
 
-    // }
+    changeShelf(book, shelf){
+      BooksAPI.update(book, shelf).then((books) => {            
+              this.setState({books})
+      })   
+      console.log("Book list change")
+    }
+
     render(){
         //TODO: <BookShelf books={this.state.books} updateStatus={this.onChangeStatus} shelfLabel='currentlyReading' title='Currently Reading' />            <BookShelf books={this.state.books} updateStatus={this.onChangeStatus} shelfLabel='wantToRead' title='Want to Read' />          <BookShelf books={this.state.books} updateStatus={this.onChangeStatus} shelfLabel='read' title='Read'/>
         //TODO: make function in App to be sent as prop to change books in App state
