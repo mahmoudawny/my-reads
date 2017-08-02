@@ -11,10 +11,10 @@ class BookList extends React.Component{
 
     // }
 
-    onComponentWillUpdate(){
-      this.props.updateBooks()
-      console.log("Book list will update")
-    }
+    // onComponentWillUpdate(){
+    //   this.props.updateBooks()
+    //   console.log("Book list will update")
+    // }
 
     changeShelf(book, shelf){
       BooksAPI.update(book, shelf).then((books) => {            
@@ -26,6 +26,8 @@ class BookList extends React.Component{
     render(){
         //TODO: <BookShelf books={this.state.books} updateStatus={this.onChangeStatus} shelfLabel='currentlyReading' title='Currently Reading' />            <BookShelf books={this.state.books} updateStatus={this.onChangeStatus} shelfLabel='wantToRead' title='Want to Read' />          <BookShelf books={this.state.books} updateStatus={this.onChangeStatus} shelfLabel='read' title='Read'/>
         //TODO: make function in App to be sent as prop to change books in App state
+        //TODO: fix onchange not working
+        //TODO: fix shelf selection always currentlyReading
         const {books} = this.props
         let currentlyReading = books.filter((book) => (
           book.shelf === "currentlyReading"))

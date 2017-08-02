@@ -6,30 +6,41 @@ import * as BooksAPI from './BooksAPI'
 class BookSearch extends React.Component{
     state = {
       query: '',
-      // result: [],
-      books: []
+      results: []
     }
-//TODO: remove books from state and make function in App to be sent as prop to change books in App state
-//TODO: fix warning for setState on unmounted component
-//TODO: why componentWillUpdate keeps firing?
-    
-    componentWillReceiveProps(){
-      this.setState({books: this.props.books})
-      // BooksAPI.search(this.state.query).then((books) => {            
-      //       this.setState({result: books})
-      //     })
-      console.log("Search will receive props")
-    }
+//TODO: make function in App to be sent as prop to change books in App state and refresh screen (maybe use get again after change)
+//TODO: fix warning for setState on unmounted component on clicking back after search(not update)
+//TODO: handle duplicates in returned query
+//TODO: fix concating book results not in search results after removing originals from results
+//TODO: fix issue that opening on search page does not load props
+//TODO: fix shelf selection always none
+    // componentWillReceiveProps(){
+    //   console.log("Search will receive props")
+    // }
 
-    componentWillUpdate(){
-      
-      console.log("Search will update")
-    }
+    // componentWillUpdate(){     
+    //   console.log("Search will update")
+    // }
 
-    //updateQuery: method to keep user's entered query in component's state
-    updateQuery(q){
-      if(q && (this.state.query !== q)) this.setState({query: q}) 
+//updateQuery: method to keep user's entered query in component's state
+  updateQuery(q){
+    if(q && (this.state.query !== q)) this.setState({query: q}) 
+  }
+
+  updateResults(results){
+    if(!results.error) {
+      let existingBooks = results.filter((result) => 
+        result.id === this.props.books.map((book) => book.id))
+      let newBooks = results.filter((result) => 
+        result.id !== this.props.books.map((book) => book.id))
+      this.setState({results: newBooks.concat(existingBooks)
+        // results.filter((result) => 
+        // result.id !== this.props.books.map((book) => book.id))
+       // newBooks.concat(existingBooks)
+      })
     }
+    else this.setState({results})
+  }
 
    changeShelf(book, shelf){
       BooksAPI.update(book, shelf).then((books) => {            
@@ -39,18 +50,10 @@ class BookSearch extends React.Component{
    }
 
     render(){
-      let results = []
-      console.log('result is'+ results)
       if(this.state.query)
-        BooksAPI.search(this.state.query).then((books) => {            
-           if(!books.error) {
-             results = books.map((book) => book)
-             console.log('result is'+ results)
-             console.log('books is'+ books)
-           }
-          else results = books
+        BooksAPI.search(this.state.query).then((results) => { 
+            this.updateResults(results)
         })
-      console.log('result is'+ results)
       return (
             <div className="search-books" ref="search">
             <div className="search-books-bar">
@@ -65,8 +68,8 @@ class BookSearch extends React.Component{
             </div>
             <div className="search-books-results">
               <ol className="books-grid"> 
-                {!results.error && (               
-                  results.map((book) => (
+                {!this.state.results.error && (               
+                  this.state.results.map((book) => (
                   <li key={book.id}>
                       <div className="book">
                         <div className="book-top">
@@ -89,7 +92,7 @@ class BookSearch extends React.Component{
                     </li>
                   )))}
               </ol>
-              {results.error &&
+              {this.state.results.error &&
               <span className="error-message"> No results found.</span>}
             </div>
           </div>
