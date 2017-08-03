@@ -1,11 +1,8 @@
 import React from 'react'
 import {Link} from 'react-router-dom'
-import * as BooksAPI from './BooksAPI'
+// import * as BooksAPI from './BooksAPI'
 
 class BookList extends React.Component{
-    state = {
-
-    }
 
     // onComponentDidMount(){
 
@@ -17,17 +14,12 @@ class BookList extends React.Component{
     // }
 
     changeShelf(book, shelf){
-      BooksAPI.update(book, shelf).then((books) => {            
-              this.setState({books})
-      })   
+      this.props.updateBooks(book, shelf)
       console.log("Book list change")
     }
 
     render(){
         //TODO: <BookShelf books={this.state.books} updateStatus={this.onChangeStatus} shelfLabel='currentlyReading' title='Currently Reading' />            <BookShelf books={this.state.books} updateStatus={this.onChangeStatus} shelfLabel='wantToRead' title='Want to Read' />          <BookShelf books={this.state.books} updateStatus={this.onChangeStatus} shelfLabel='read' title='Read'/>
-        //TODO: make function in App to be sent as prop to change books in App state
-        //TODO: fix onchange not working
-        //TODO: fix shelf selection always currentlyReading
         const {books} = this.props
         let currentlyReading = books.filter((book) => (
           book.shelf === "currentlyReading"))
@@ -81,7 +73,7 @@ class BookList extends React.Component{
                           <div className="book-top">
                             <div className="book-cover" style={{ width: 128, height: 193, backgroundImage: `url(${book.imageLinks.thumbnail})` }}></div>
                             <div className="book-shelf-changer">
-                              <select>
+                                <select value={book.shelf} onChange={(event) => this.changeShelf(book, event.target.value)}>
                                 <option value="none" disabled>Move to...</option>
                                 <option value="currentlyReading">Currently Reading</option>
                                 <option value="wantToRead">Want to Read</option>
@@ -108,7 +100,7 @@ class BookList extends React.Component{
                           <div className="book-top">
                             <div className="book-cover" style={{ width: 128, height: 193, backgroundImage: `url(${book.imageLinks.thumbnail})` }}></div>
                             <div className="book-shelf-changer">
-                              <select>
+                                <select value={book.shelf} onChange={(event) => this.changeShelf(book, event.target.value)}>
                                 <option value="none" disabled>Move to...</option>
                                 <option value="currentlyReading">Currently Reading</option>
                                 <option value="wantToRead">Want to Read</option>

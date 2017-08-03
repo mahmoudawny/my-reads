@@ -1,59 +1,59 @@
 import React from 'react'
 import {Link} from 'react-router-dom'
 //import SortBy from 'sort-by'
-//import escapeRegExp from 'escape-string-regexp'
 import * as BooksAPI from './BooksAPI'
+
 class BookSearch extends React.Component{
     state = {
       query: '',
       results: []
     }
-//TODO: make function in App to be sent as prop to change books in App state and refresh screen (maybe use get again after change)
-//TODO: fix warning for setState on unmounted component on clicking back after search(not update)
+//TODO: fix issue where api.search does not finish but updateResults run with empty object, causing first typed letter to have no results
+// and second typed letter to search for results of first letter (try prevState in setstate)
 //TODO: handle duplicates in returned query
 //TODO: fix concating book results not in search results after removing originals from results
-//TODO: fix issue that opening on search page does not load props
-//TODO: fix shelf selection always none
-    // componentWillReceiveProps(){
-    //   console.log("Search will receive props")
-    // }
+//TODO: fix issue that refreshing search page does not load props 
+// (happens if check results existing is removed from update method)
+//TODO: fix shelf selection always empty
+//TODO: Add book shelf class to this DOM to replace static html
 
-    // componentWillUpdate(){     
-    //   console.log("Search will update")
-    // }
 
-//updateQuery: method to keep user's entered query in component's state
+
+//updateQuery method to keep user's entered query in component's state
   updateQuery(q){
-    if(q && (this.state.query !== q)) this.setState({query: q}) 
-  }
-
-  updateResults(results){
-    if(!results.error) {
-      let existingBooks = results.filter((result) => 
-        result.id === this.props.books.map((book) => book.id))
-      let newBooks = results.filter((result) => 
-        result.id !== this.props.books.map((book) => book.id))
-      this.setState({results: newBooks.concat(existingBooks)
-        // results.filter((result) => 
-        // result.id !== this.props.books.map((book) => book.id))
-       // newBooks.concat(existingBooks)
+    if(q && (this.state.query !== q)) {
+      //try prevState in this setState, merge search call with set query:q
+      this.setState({query: q}) 
+      BooksAPI.search(this.state.query).then((results) => { 
+          this.updateResults(results)
       })
     }
-    else this.setState({results})
   }
 
-   changeShelf(book, shelf){
-      BooksAPI.update(book, shelf).then((books) => {            
-              this.setState({books})
-      })
-      console.log("Search change")
-   }
-
-    render(){
-      if(this.state.query)
-        BooksAPI.search(this.state.query).then((results) => { 
-            this.updateResults(results)
+//updateResults method filters existing books from returned search results
+// and then concats the existing books matched with results to keep their shelf status
+  updateResults(results){
+    if(results){
+      if(!results.error) {
+        // let existingBooks = results.filter((result) => 
+        //   result.id === this.props.books.map((book) => book.id))
+        let newBooks = results.filter((result) => 
+          result.id !== this.props.books.map((book) => book.id))
+        this.setState({results: newBooks
+          // results.filter((result) => 
+          // result.id !== this.props.books.map((book) => book.id))
+        // newBooks.concat(existingBooks)
         })
+      }
+      else this.setState({results})
+    } 
+  }
+
+  changeShelf(book, shelf){
+    this.props.updateBooks(book, shelf)
+  }
+
+  render(){     
       return (
             <div className="search-books" ref="search">
             <div className="search-books-bar">
@@ -93,7 +93,7 @@ class BookSearch extends React.Component{
                   )))}
               </ol>
               {this.state.results.error &&
-              <span className="error-message"> No results found.</span>}
+              <span className="error-message"> No results found for the specified search criteria.</span>}
             </div>
           </div>
         )
