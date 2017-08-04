@@ -11,17 +11,14 @@ class BookSearch extends React.Component{
       query: '',
       results: []
     }
-//TODO: handle duplicates in returned query
-//TODO: fix concating book results not in search results after removing originals
-// from results 
-//TODO: fix shelf selection always empty
+//TODO: handle duplicates in returned query (e.g. search for React)
 
 /*updateQuery method to keep user's entered query in component's state 
 and search for books using the query*/
   updateQuery(q){
     if(q && (this.state.query !== q)) {
       this.setState({query: q}) 
-      BooksAPI.search(q,20).then((results) => { 
+      BooksAPI.search(q).then((results) => { 
           this.updateResults(results)
       })
     }
@@ -29,20 +26,16 @@ and search for books using the query*/
     results: []})
   }
 
-/*updateResults method filters existing books from returned search results
-and then concats the existing books matched with results to keep their shelf status*/
+/*updateResults method removes user's shelved books from returned search results
+and then adds the rest of the results to the existing books to keep their shelf statuses*/
   updateResults(results){
     if(results){
       if(!results.error) {
-        // let existingBooks = results.filter((result) => 
-        //   result.id === this.props.books.map((book) => book.id))
-        let newBooks = results.filter((result) => 
-          result.id !== this.props.books.map((book) => book.id))
-        this.setState({results: newBooks
-          // results.filter((result) => 
-          // result.id !== this.props.books.map((book) => book.id))
-        // newBooks.concat(existingBooks)
-        })
+          let existingBooks = this.props.books.filter((book) => 
+            results.map((result) => result.id).indexOf(book.id) >= 0)
+          let newBooks = results.filter((result) => 
+            this.props.books.map((book) => book.id).indexOf(result.id) === -1)
+          this.setState({results: existingBooks.concat(newBooks)})
       }
       else this.setState({results})
     } 

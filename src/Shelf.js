@@ -4,7 +4,7 @@ import React from 'react'
 import Book from './Book'
 
 class Shelf extends React.Component{
-
+//TODO: Add Remove all button
     render(){
         const {books, shelf} = this.props
         return (
