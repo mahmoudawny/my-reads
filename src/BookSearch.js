@@ -8,26 +8,21 @@ class BookSearch extends React.Component{
       query: '',
       results: []
     }
-//TODO: fix issue where api.search does not finish but updateResults run with empty object, causing first typed letter to have no results
-// and second typed letter to search for results of first letter (try prevState in setstate)
 //TODO: handle duplicates in returned query
-//TODO: fix concating book results not in search results after removing originals from results
-//TODO: fix issue that refreshing search page does not load props 
-// (happens if check results existing is removed from update method)
+//TODO: fix concating book results not in search results after removing originals from results 
 //TODO: fix shelf selection always empty
 //TODO: Add book shelf class to this DOM to replace static html
-
-
 
 //updateQuery method to keep user's entered query in component's state
   updateQuery(q){
     if(q && (this.state.query !== q)) {
-      //try prevState in this setState, merge search call with set query:q
       this.setState({query: q}) 
-      BooksAPI.search(this.state.query).then((results) => { 
+      BooksAPI.search(q,20).then((results) => { 
           this.updateResults(results)
       })
     }
+    else if(!q) this.setState({query: q,
+    results: []})
   }
 
 //updateResults method filters existing books from returned search results
